@@ -39,36 +39,70 @@ fn getSize boundingBoxPoints = (
 
 
 (
-	allObjects = objects as array
-	
+	PreObjects = objects as array
+	allObjects = #()
+
+	for obj in PreObjects do (
+		objNameString = obj.name as string
+		if (findString objNameString "LARK" != undefined) do (
+
+			print "lark in pre objects"
+			objParentNameString = obj.parent as string
+			print objParentNameString
+		)
+		if obj.parent == undefined do append allObjects obj
+	)
+
 	objCheck1 = #()
 	objCheck2 = #()
 
 	depthList = #()
 	widthList = #()
 	heightList = #()
+	arch = #()
+	
 	sumD = 0.0
 	sumW = 0.0
 	sumH = 0.0
 	countD = 0
 
+	
+
 	for obj in allObjects do (
 		boundingBoxPoints = getBBoxPoints obj
 		size = getSize boundingBoxPoints
+		found = 0
+
+		objNameString = obj.name as string
+		if (findString objNameString "LARK" != undefined) do (
+			print "lark in all objects"
+			found = 1
+		)
+
 		if size[1] < 0.1 or size[1] >1000 do (
 			print obj.name
+			append arch obj
+
+			if found == 1 do print "first continue"
+
 			continue
 		)
 		
 		if size[2] < 0.1 or size[2] >1000 do (
 			print obj.name
+			append arch obj
+			if found == 1 do print "second continue"
 			continue
 		)
 		
 		if size[3] < 0.1 or size[3] >1000 do (
 			print obj.name
+			append arch obj
+			if found == 1 do print "third continue"
 			continue
 		)
+		if found == 1 do print "no continues"
+
 		append depthList size[1]
 		sumD = sumD + size[1]
 		append widthList size[2]
@@ -88,15 +122,37 @@ fn getSize boundingBoxPoints = (
 	for obj in objCheck1 do(
 		boundingBoxPoints = getBBoxPoints obj
 		size = getSize boundingBoxPoints
-		if size[1] > 2*avgD or size[2] > 2*avgW or size[3] > 2*avgH then(
+		found = 0
+
+		objNameString = obj.name as string
+		if (findString objNameString "Group3993" != undefined) do (
+			print "Group3993 in objCheck1"
+			found = 1
+		)
+
+		if size[1] > 8*avgD or size[2] > 8*avgW or size[3] > 8*avgH then(
 			print obj.name as string
+			append arch obj
+			if found == 1 do print "append Group3993 to arch and continue dont add chair to objCheck2"
 			continue
 		)
 		append objCheck2 obj
+		if found == 1 do print "append Group3993 to objCheck2"
+
+
+
 		
 		
 	)
+	clearSelection()
+	select objCheck2
+	arrayToExport = selection as array
+	saveNodes arrayToExport "C:\\Users\\Siqi Wang\\Desktop\\scene\\testOutput\\furniture.max" quiet:true
 
+	clearSelection()
+	select arch
+	arrayToExport = selection as array
+	saveNodes arrayToExport "C:\\Users\\Siqi Wang\\Desktop\\scene\\testOutput\\arch.max" quiet:true
 
 /*
 
